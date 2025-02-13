@@ -1,0 +1,19 @@
+runtime: nodejs22
+instance_class: F1
+
+handlers:
+  - url: /
+    static_files: dist/frontend/browser/index.html
+    upload: dist/frontend/browser/index.html
+  - url: /(.*\.js)
+    static_files: dist/frontend/browser/\1
+    upload: dist/frontend/browser/(.*\.js)
+  - url: /(.*\.css)
+    static_files: dist/frontend/browser/\1
+    upload: dist/frontend/browser/(.*\.css)
+  - url: /(.*\.ico)
+    static_files: dist/frontend/browser/\1
+    upload: dist/frontend/browser/(.*\.ico)
+  - url: /(.*)$
+    static_files: dist/frontend/browser/index.html
+    upload: dist/frontend/browser/index.html
