@@ -6,15 +6,20 @@ import flask
 from google import genai
 from google.cloud import storage
 from google.genai import types
+from google.cloud.firestore import Client, SERVER_TIMESTAMP
 
 PROJECT_ID: str = os.getenv("GCLOUD_PROJECT")
 LOCATION: str = os.getenv("LOCATION", "us-central1")
-BUCKET_NAME: str = os.getenv("BUCKET_NAME", "gcp-project-image-generator")
+BUCKET_NAME: str = "gcp-project-image-generator"
+BUCKET_IMAGES_PATH: str = "generated-images"
+FIRESTORE_DATABASE: str = "gcp-project-image-generator"
+FIRESTORE_COLLECTION: str = "generated-images"
 GENERATION_MODEL: str = "imagen-3.0-generate-002"
 
 app = flask.Flask(__name__)
 genai_client = genai.Client(vertexai=True, project=PROJECT_ID, location=LOCATION)
 storage_client = storage.Client()
+firestore_client = Client(database=FIRESTORE_DATABASE)
 
 
 def generate_image(prompt: str) -> bytes | None:
@@ -37,17 +42,27 @@ def generate_image(prompt: str) -> bytes | None:
         return None
 
 
-def upload_to_storage(image_bytes: bytes, filename: str) -> str:
+def upload_to_storage(image_bytes: bytes, filename: str) -> None:
     try:
         bucket = storage_client.bucket(BUCKET_NAME)
-        blob = bucket.blob(f"generated-images/{filename}")
+        blob = bucket.blob(f"{BUCKET_IMAGES_PATH}/{filename}")
         blob.upload_from_string(image_bytes, content_type="image/png")
-        return (
-            f"https://storage.googleapis.com/{bucket.name}/generated-images/{filename}"
-        )
     except Exception as e:
         print(f"Error uploading image to storage: {str(e)}")
-        return None
+
+
+def store_to_firestore(prompt: str, filename: str) -> None:
+    try:
+        doc_ref = firestore_client.collection(FIRESTORE_COLLECTION).document()
+        doc_ref.set(
+            {
+                "prompt": prompt,
+                "image": f"https://storage.cloud.google.com/{BUCKET_NAME}/{BUCKET_IMAGES_PATH}/{filename}",
+                "timestamp": SERVER_TIMESTAMP,
+            }
+        )
+    except Exception as e:
+        print(f"Error storing image to Firestore: {str(e)}")
 
 
 @app.route("/generate", methods=["POST", "OPTIONS"])
@@ -75,13 +90,13 @@ def generate_and_store_image(request: flask.Request):
                 headers,
             )
         filename: str = f"{str(uuid.uuid4())}.png"
-        image_url: str = upload_to_storage(image, filename)
+        upload_to_storage(image, filename)
+        store_to_firestore(prompt, filename)
         return (
-            json.dumps({"success": True, "image_url": image_url, "prompt": prompt}),
+            json.dumps({"success": True, "prompt": prompt, "filename": filename}),
             200,
             headers,
         )
-
     except Exception as e:
         print(f"Error: {str(e)}")
         return json.dumps({"success": False, "error": str(e)}), 500, headers
