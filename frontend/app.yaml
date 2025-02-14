@@ -3,17 +3,17 @@ instance_class: F1
 
 handlers:
   - url: /
-    static_files: dist/frontend/browser/index.html
-    upload: dist/frontend/browser/index.html
+    static_files: dist/frontend/index.html
+    upload: dist/frontend/index.html
   - url: /(.*\.js)
-    static_files: dist/frontend/browser/\1
-    upload: dist/frontend/browser/(.*\.js)
+    static_files: dist/frontend/\1
+    upload: dist/frontend/(.*\.js)
   - url: /(.*\.css)
-    static_files: dist/frontend/browser/\1
-    upload: dist/frontend/browser/(.*\.css)
+    static_files: dist/frontend/\1
+    upload: dist/frontend/(.*\.css)
   - url: /(.*\.ico)
-    static_files: dist/frontend/browser/\1
-    upload: dist/frontend/browser/(.*\.ico)
+    static_files: dist/frontend/\1
+    upload: dist/frontend/(.*\.ico)
   - url: /(.*)$
-    static_files: dist/frontend/browser/index.html
-    upload: dist/frontend/browser/index.html
+    static_files: dist/frontend/index.html
+    upload: dist/frontend/index.html
