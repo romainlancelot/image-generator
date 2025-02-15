@@ -28,7 +28,6 @@ export class AppComponent {
 		this.generatedImages = collectionData(generatedImagesCollection) as Observable<GeneratedImage[]>
 	}
 
-
 	/**
 	 * Handles the form submission event.
 	 * 
@@ -38,8 +37,11 @@ export class AppComponent {
 	 */
 	async onSubmit() {
 		this.loading.set(true)
-		const response: Response = await this.appService.generateImage(this.form.value.prompt)
-		this.loading.set(false)
-		this.generatedImageUrl.set(response.filename)
+		await this.appService.generateImage(this.form.value.prompt).then((response: Response) => {
+			this.generatedImageUrl.set(response.filename)
+			this.loading.set(false)
+		}).catch(() => {
+			this.loading.set(false)
+		})
 	}
 }

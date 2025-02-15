@@ -12,20 +12,22 @@
                 <p class="mt-3">Generating your image, please wait... ⏳</p>
             </div>
             }
-            @if (generatedImageUrl()) {
-            <p class="text-center mt-5">Generated image:</p>
-            <img [src]="generatedImageUrl()" [alt]="generatedImageUrl()" class="img-fluid mt-5">
-            <p class="text-center mt-5"> Prompt used: <strong>{{ form.get('prompt')?.value }}</strong></p>
+            @if (generatedImageUrl() && !loading()) {
+            <div class="text-center mt-5">
+                <p class="text-center">🖼️ Generated image:</p>
+                <img [src]="generatedImageUrl()" [alt]="generatedImageUrl()" class="img-fluid">
+                <p class="text-center mt-3">💬 Prompt used: <strong>{{ form.get('prompt')?.value }}</strong></p>
+            </div>
             }
         </div>
     </div>
     <p class="text-center mt-5">Generated images:</p>
     <div class="row">
         @for (generatedImage of generatedImages | async; track $index) {
-        <div class="col-4 mt-3">
-            <img [src]="generatedImage.image" class="img-fluid mt-5">
-            <p class="mt-3"> Prompt used: <strong>{{ generatedImage.prompt }}</strong></p>
-            <p>Generated at: <strong>{{ generatedImage.timestamp.toDate() | date }}</strong></p>
+        <div class="col-3">
+            <img [src]="generatedImage.image" class="img-fluid">
+            <p class="mt-3">💬 Prompt used: <strong>{{ generatedImage.prompt }}</strong></p>
+            <p class="mb-5">🕒 Generated at: <strong>{{ generatedImage.timestamp.toDate() | date }}</strong></p>
         </div>
         }
     </div>
