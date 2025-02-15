@@ -57,7 +57,7 @@ def store_to_firestore(prompt: str, filename: str) -> None:
         doc_ref.set(
             {
                 "prompt": prompt,
-                "image": f"https://storage.cloud.google.com/{BUCKET_NAME}/{BUCKET_IMAGES_PATH}/{filename}",
+                "image": f"https://storage.googleapis.com/{BUCKET_NAME}/{BUCKET_IMAGES_PATH}/{filename}",
                 "timestamp": SERVER_TIMESTAMP,
             }
         )
