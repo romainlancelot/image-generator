@@ -1,6 +1,7 @@
 .idea
 .vscode
 .tmp
+.angular
 
 # Logs
 logs
@@ -47,3 +48,7 @@ jspm_packages
 
 # Service account keys
 service.account.key.json
+
+# Exclude git history and configuration.
+.git/
+.gitignore

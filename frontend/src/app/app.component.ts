@@ -2,24 +2,44 @@ import { Component, inject, signal, WritableSignal } from '@angular/core'
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { AppService } from './app.service'
 import { Response } from './models/response'
+import { collection, collectionData, CollectionReference, Firestore } from '@angular/fire/firestore'
+import { AsyncPipe, DatePipe } from '@angular/common'
+import { Observable } from 'rxjs'
+import { GeneratedImage } from './models/generated-image'
 
 @Component({
 	selector: 'app-root',
-	imports: [ReactiveFormsModule],
+	imports: [ReactiveFormsModule, AsyncPipe, DatePipe],
 	templateUrl: './app.component.html'
 })
 export class AppComponent {
+	appService: AppService = inject(AppService)
+	store: Firestore = inject(Firestore)
+	generatedImages: Observable<GeneratedImage[]>
+
 	loading: WritableSignal<boolean> = signal(false)
-	imageUrl: WritableSignal<string> = signal('')
+	generatedImageUrl: WritableSignal<string> = signal('')
 	form: FormGroup = new FormGroup({
 		prompt: new FormControl('')
 	})
-	appService: AppService = inject(AppService)
 
+	constructor() {
+		const generatedImagesCollection: CollectionReference = collection(this.store, 'generated-images')
+		this.generatedImages = collectionData(generatedImagesCollection) as Observable<GeneratedImage[]>
+	}
+
+
+	/**
+	 * Handles the form submission event.
+	 * 
+	 * This method sets the loading state to true, sends a request to generate an image
+	 * based on the provided prompt, and then updates the loading state and the generated
+	 * image URL based on the response.
+	 */
 	async onSubmit() {
 		this.loading.set(true)
 		const response: Response = await this.appService.generateImage(this.form.value.prompt)
 		this.loading.set(false)
-		this.imageUrl.set(response.filename)
+		this.generatedImageUrl.set(response.filename)
 	}
 }
