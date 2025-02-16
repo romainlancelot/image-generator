@@ -40,7 +40,7 @@ export class AppComponent {
 		this.loading.set(true)
 		try {
 			const response: Response = await this.appService.generateImage(this.form.value.prompt)
-			this.generatedImageUrl.set(response.filename)
+			this.generatedImageUrl.set(response.url)
 		} catch (error) {
 			alert("An error occurred while generating the image.")
 		} finally {

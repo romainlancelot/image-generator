@@ -42,22 +42,23 @@ def generate_image(prompt: str) -> bytes | None:
         return None
 
 
-def upload_to_storage(image_bytes: bytes, filename: str) -> None:
+def upload_to_storage(image_bytes: bytes, filename: str) -> str | None:
     try:
         bucket = storage_client.bucket(BUCKET_NAME)
         blob = bucket.blob(f"{BUCKET_IMAGES_PATH}/{filename}")
         blob.upload_from_string(image_bytes, content_type="image/png")
+        return f"https://storage.googleapis.com/{BUCKET_NAME}/{BUCKET_IMAGES_PATH}/{filename}"
     except Exception as e:
         print(f"Error uploading image to storage: {str(e)}")
 
 
-def store_to_firestore(prompt: str, filename: str) -> None:
+def store_to_firestore(prompt: str, url: str) -> None:
     try:
         doc_ref = firestore_client.collection(FIRESTORE_COLLECTION).document()
         doc_ref.set(
             {
                 "prompt": prompt,
-                "image": f"https://storage.googleapis.com/{BUCKET_NAME}/{BUCKET_IMAGES_PATH}/{filename}",
+                "image": url,
                 "timestamp": SERVER_TIMESTAMP,
             }
         )
@@ -90,10 +91,10 @@ def generate_and_store_image(request: flask.Request):
                 headers,
             )
         filename: str = f"{str(uuid.uuid4())}.png"
-        upload_to_storage(image, filename)
-        store_to_firestore(prompt, filename)
+        url: str = upload_to_storage(image, filename)
+        store_to_firestore(prompt, url)
         return (
-            json.dumps({"success": True, "prompt": prompt, "filename": filename}),
+            json.dumps({"success": True, "prompt": prompt, "url": url}),
             200,
             headers,
         )

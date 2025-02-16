@@ -24,8 +24,6 @@ export class AppService {
 			throw new Error("Failed to generate image.")
 		}
 		const data: Response = await response.json()
-		const baseUrl: string = "https://storage.googleapis.com"
-		data.filename = `${baseUrl}/${environment.BUCKET_NAME}/${environment.BUCKET_IMAGES_PATH}/${data.filename}`
 		return data
 	}
 }
