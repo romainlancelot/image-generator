@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { Response } from './models/response';
-import { environment } from '../environments/environment';
+import { Injectable } from "@angular/core"
+import { Response } from "./models/response"
+import { environment } from "../environments/environment"
 
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AppService {
 	/**
 	 * Generates an image based on the provided prompt by making a POST request to the generate URL.
@@ -14,17 +14,17 @@ export class AppService {
 	 */
 	async generateImage(prompt: string): Promise<Response> {
 		const response = await fetch(environment.GENERATE_URL, {
-			method: 'POST',
+			method: "POST",
 			headers: {
-				'Content-Type': 'application/json',
+				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({ prompt }),
 		})
 		if (!response.ok) {
-			throw new Error('Network response was not ok')
+			throw new Error("Failed to generate image.")
 		}
 		const data: Response = await response.json()
-		const baseUrl: string = 'https://storage.googleapis.com'
+		const baseUrl: string = "https://storage.googleapis.com"
 		data.filename = `${baseUrl}/${environment.BUCKET_NAME}/${environment.BUCKET_IMAGES_PATH}/${data.filename}`
 		return data
 	}

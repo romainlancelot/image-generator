@@ -1,16 +1,16 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core'
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
-import { AppService } from './app.service'
-import { Response } from './models/response'
-import { collection, collectionData, CollectionReference, Firestore, orderBy, query } from '@angular/fire/firestore'
-import { AsyncPipe, DatePipe } from '@angular/common'
-import { Observable } from 'rxjs'
-import { GeneratedImage } from './models/generated-image'
+import { Component, inject, signal, WritableSignal } from "@angular/core"
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms"
+import { AppService } from "./app.service"
+import { Response } from "./models/response"
+import { collection, collectionData, CollectionReference, Firestore, orderBy, query } from "@angular/fire/firestore"
+import { AsyncPipe, DatePipe } from "@angular/common"
+import { Observable } from "rxjs"
+import { GeneratedImage } from "./models/generated-image"
 
 @Component({
-	selector: 'app-root',
+	selector: "app-root",
 	imports: [ReactiveFormsModule, AsyncPipe, DatePipe],
-	templateUrl: './app.component.html'
+	templateUrl: "./app.component.html"
 })
 export class AppComponent {
 	appService: AppService = inject(AppService)
@@ -18,14 +18,14 @@ export class AppComponent {
 	generatedImages: Observable<GeneratedImage[]>
 
 	loading: WritableSignal<boolean> = signal(false)
-	generatedImageUrl: WritableSignal<string> = signal('')
+	generatedImageUrl: WritableSignal<string> = signal("")
 	form: FormGroup = new FormGroup({
-		prompt: new FormControl('')
+		prompt: new FormControl("")
 	})
 
 	constructor() {
-		const generatedImagesCollection: CollectionReference = collection(this.store, 'generated-images')
-		const imagesQuery = query(generatedImagesCollection, orderBy('timestamp', 'desc'))
+		const generatedImagesCollection: CollectionReference = collection(this.store, "generated-images")
+		const imagesQuery = query(generatedImagesCollection, orderBy("timestamp", "desc"))
 		this.generatedImages = collectionData(imagesQuery) as Observable<GeneratedImage[]>
 	}
 
@@ -38,11 +38,13 @@ export class AppComponent {
 	 */
 	async onSubmit() {
 		this.loading.set(true)
-		await this.appService.generateImage(this.form.value.prompt).then((response: Response) => {
+		try {
+			const response: Response = await this.appService.generateImage(this.form.value.prompt)
 			this.generatedImageUrl.set(response.filename)
+		} catch (error) {
+			alert("An error occurred while generating the image.")
+		} finally {
 			this.loading.set(false)
-		}).catch(() => {
-			this.loading.set(false)
-		})
+		}
 	}
 }
