@@ -2,7 +2,7 @@ import { Component, inject, signal, WritableSignal } from '@angular/core'
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { AppService } from './app.service'
 import { Response } from './models/response'
-import { collection, collectionData, CollectionReference, Firestore } from '@angular/fire/firestore'
+import { collection, collectionData, CollectionReference, Firestore, orderBy, query } from '@angular/fire/firestore'
 import { AsyncPipe, DatePipe } from '@angular/common'
 import { Observable } from 'rxjs'
 import { GeneratedImage } from './models/generated-image'
@@ -25,7 +25,8 @@ export class AppComponent {
 
 	constructor() {
 		const generatedImagesCollection: CollectionReference = collection(this.store, 'generated-images')
-		this.generatedImages = collectionData(generatedImagesCollection) as Observable<GeneratedImage[]>
+		const imagesQuery = query(generatedImagesCollection, orderBy('timestamp', 'desc'))
+		this.generatedImages = collectionData(imagesQuery) as Observable<GeneratedImage[]>
 	}
 
 	/**

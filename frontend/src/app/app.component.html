@@ -25,7 +25,9 @@
     <div class="row">
         @for (generatedImage of generatedImages | async; track $index) {
         <div class="col-md-3 col-12">
-            <img [src]="generatedImage.image" class="img-fluid rounded">
+            <a href="{{ generatedImage.image }}" target="_blank">
+                <img [src]="generatedImage.image" class="img-fluid rounded">
+            </a>
             <p class="mt-3">💬 Prompt used: <strong>{{ generatedImage.prompt }}</strong></p>
             <p class="mb-5">🕒 Generated at: <strong>{{ generatedImage.timestamp.toDate() | date }}</strong></p>
         </div>
